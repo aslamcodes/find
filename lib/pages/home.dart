@@ -1,14 +1,12 @@
+import 'package:find/classes/user_finds.dart';
+import 'package:find/model/user_model.dart';
 import 'package:find/widgets/common/NewFindFAB.dart';
 import 'package:find/widgets/find_circle.dart';
 import 'package:find/widgets/find_group.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class UserFinds {
-  final List<Find> finds;
-  final String user;
-  const UserFinds({required this.finds, required this.user});
-}
+import 'package:provider/provider.dart';
 
 const List<UserFinds> dummy = [
   UserFinds(user: "Mohamed Aslam", finds: [

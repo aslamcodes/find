@@ -1,15 +1,6 @@
+import 'package:find/classes/user_finds.dart';
 import 'package:find/widgets/find_circle.dart';
 import 'package:flutter/material.dart';
-
-class Find {
-  final FindSMEnum type;
-  final String dataURL;
-
-  const Find({
-    required this.type,
-    required this.dataURL,
-  });
-}
 
 class FindGroupWidget extends StatelessWidget {
   final List<Find> finds;

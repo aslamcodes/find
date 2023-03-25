@@ -1,18 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:find/classes/find_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class FindUser {
-  final String? username;
-  final String? email;
+class UserProvider extends ChangeNotifier {
+  late final FirebaseFirestore _firestore;
+  late final CollectionReference _usersCollection;
 
-  const FindUser({this.username, this.email});
-}
+  FindUser? _currentUser;
 
-class UserModel with ChangeNotifier {
-  FindUser? user;
+  FindUser? get currentUser => _currentUser;
 
-  void userLoad(FindUser user) {
-    user = user;
-    notifyListeners();
+  UserProvider() {
+    _firestore = FirebaseFirestore.instance;
+    _usersCollection = _firestore.collection('users');
+
+    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) async {
+      if (firebaseUser == null) {
+        _currentUser = null;
+        notifyListeners();
+      } else {
+        final userDoc = await _usersCollection.doc(firebaseUser.uid).get();
+        if (userDoc.exists) {
+          _currentUser =
+              FindUser.fromJson(userDoc.data() as Map<String, dynamic>);
+        } else {
+          _currentUser = FindUser(
+            // id: firebaseUser.uid,
+            username: firebaseUser.displayName ?? '',
+            email: firebaseUser.email ?? '',
+          );
+          await _usersCollection
+              .doc(firebaseUser.uid)
+              .set(_currentUser!.toJson());
+        }
+        notifyListeners();
+      }
+    });
   }
 }
