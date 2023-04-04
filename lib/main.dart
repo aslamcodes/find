@@ -1,5 +1,5 @@
-import 'package:find/classes/find_user.dart';
 import 'package:find/model/user_model.dart';
+import 'package:find/pages/auth/login.dart';
 import 'package:find/pages/home.dart';
 import 'package:find/pages/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,10 +26,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FindUser? user = context.read<UserProvider>().currentUser;
     return MaterialApp(
-      home: const HomePageWidget(),
-      initialRoute: user != null ? '/' : '/login',
+      home: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (BuildContext context, snapshot) {
+            if (snapshot.data != null) {
+              return const HomePageWidget();
+            } else {
+              return const LoginPage();
+            }
+          }),
       title: "finds",
       theme: ThemeData(primarySwatch: Colors.blue),
       routes: routeMap,

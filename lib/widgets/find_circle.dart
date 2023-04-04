@@ -8,6 +8,7 @@ class FindCircleWidget extends StatelessWidget {
   const FindCircleWidget({super.key, required this.findData});
 
   final Find findData;
+
   @override
   Widget build(BuildContext context) {
     return Container(

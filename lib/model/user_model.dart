@@ -27,6 +27,7 @@ class UserProvider extends ChangeNotifier {
         } else {
           _currentUser = FindUser(
             // id: firebaseUser.uid,
+            profileImage: '',
             username: firebaseUser.displayName ?? '',
             email: firebaseUser.email ?? '',
           );

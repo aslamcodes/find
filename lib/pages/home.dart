@@ -41,11 +41,28 @@ class HomePageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(context.read<UserProvider>().currentUser?.username);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          leading: const CircleAvatar(backgroundColor: Colors.blue),
+          leading: GestureDetector(
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+            },
+            child: Container(
+              // margin: const EdgeInsets.all(17),
+              padding: const EdgeInsets.all(2),
+              child: CircleAvatar(
+                backgroundColor: Colors.blue,
+                foregroundImage: NetworkImage(context
+                        .read<UserProvider>()
+                        .currentUser
+                        ?.profileImage ??
+                    "https://static.wikia.nocookie.net/despicableme/images/a/ac/BobYay.png/revision/latest?cb=20220129132453"),
+              ),
+            ),
+          ),
           actions: [
             GestureDetector(
               onTap: () {},

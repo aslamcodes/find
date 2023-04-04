@@ -38,12 +38,14 @@ class _RegisterPageState extends State<Register> {
     }
   }
 
-  Future<void> _uploadProfilePicture(String uid) async {
-    if (_imageFile == null) return;
+  Future<String?> _uploadProfilePicture(String uid) async {
+    if (_imageFile == null) return null;
     final Reference storageRef =
         FirebaseStorage.instance.ref().child('users/$uid/profile.jpg');
     final UploadTask uploadTask = storageRef.putFile(_imageFile!);
     await uploadTask.whenComplete(() => null);
+    final String downloadUrl = await storageRef.getDownloadURL();
+    return downloadUrl;
   }
 
   void registerHandler() async {
@@ -55,7 +57,7 @@ class _RegisterPageState extends State<Register> {
       );
 
       if (credential.user?.uid != null) {
-        await _uploadProfilePicture(credential.user!.uid);
+        final String? profileUrl = await _uploadProfilePicture(credential.user!.uid);
 
         await FirebaseFirestore.instance
             .collection("users")
@@ -63,7 +65,7 @@ class _RegisterPageState extends State<Register> {
             .set({
           "username": usernameController.text,
           "email": emailController.text,
-          'profile_picture': 'users/${credential.user?.uid}/profile.jpg'
+          'profile_picture': profileUrl
         });
       }
 
