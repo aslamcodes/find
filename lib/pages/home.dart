@@ -1,6 +1,7 @@
 import 'package:find/classes/user_finds.dart';
 import 'package:find/model/user_model.dart';
-import 'package:find/widgets/common/NewFindFAB.dart';
+import 'package:find/utils/user_utils.dart';
+import 'package:find/widgets/common/new_find_fab.dart';
 import 'package:find/widgets/find_circle.dart';
 import 'package:find/widgets/find_group.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,40 +9,27 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-const List<UserFinds> dummy = [
-  UserFinds(user: "Mohamed Aslam", finds: [
-    Find(
-        type: FindSMEnum.youtube,
-        dataURL: "https://www.youtube.com/watch?v=AIc671o9yCI"),
-    Find(
-        type: FindSMEnum.youtube,
-        dataURL: "https://www.youtube.com/watch?v=AIc671o9yCI"),
-    Find(
-        type: FindSMEnum.facebook,
-        dataURL:
-            "https://www.facebook.com/groups/781303619106745/permalink/1313804055856696/")
-  ]),
-  UserFinds(user: "Angu", finds: [
-    Find(
-        type: FindSMEnum.spotify,
-        dataURL:
-            "https://open.spotify.com/track/6H1hnJRQOGQ9djPL3jNu9G?si=6224c7a403d94f6f"),
-    Find(
-        type: FindSMEnum.spotify,
-        dataURL:
-            "https://open.spotify.com/track/6H1hnJRQOGQ9djPL3jNu9G?si=6224c7a403d94f6f"),
-    Find(
-        type: FindSMEnum.youtube,
-        dataURL: "https://www.youtube.com/watch?v=AIc671o9yCI"),
-  ]),
-];
-
-class HomePageWidget extends StatelessWidget {
+class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
 
   @override
+  State<HomePageWidget> createState() => _HomePageWidgetState();
+}
+
+class _HomePageWidgetState extends State<HomePageWidget> {
+  late Future<List<UserFinds>> futureUserFinds;
+
+  @override
+  void initState() {
+    super.initState();
+
+    String? uid = Provider.of<User?>(context, listen: false)?.uid;
+    print(uid);
+    futureUserFinds = getUserFindsFromFirestore(uid);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print(context.read<UserProvider>().currentUser?.username);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -65,7 +53,12 @@ class HomePageWidget extends StatelessWidget {
           ),
           actions: [
             GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                final uid = context.read<User?>()?.uid;
+                if (uid != null) {
+                  getUserFindsFromFirestore(uid);
+                }
+              },
               child: Container(
                 decoration: const BoxDecoration(
                     color: Color.fromRGBO(0, 129, 159, 1),
@@ -86,18 +79,30 @@ class HomePageWidget extends StatelessWidget {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView.separated(
-            itemCount: dummy.length,
-            itemBuilder: (context, index) => FindGroupWidget(
-              finds: dummy[index].finds,
-              username: dummy[index].user,
-            ),
-            separatorBuilder: (context, index) => const SizedBox(
-              height: 10,
-            ),
-          ),
+        body: FutureBuilder<List<UserFinds>>(
+          future: futureUserFinds,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.separated(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) => FindGroupWidget(
+                    finds: snapshot.data![index].finds,
+                    username: snapshot.data![index].user,
+                  ),
+                  separatorBuilder: (context, index) => const SizedBox(
+                    height: 10,
+                  ),
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          },
         ),
         floatingActionButton: const NewFindFAB(),
       ),

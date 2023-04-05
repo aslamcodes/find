@@ -16,6 +16,10 @@ class Find {
     required this.type,
     required this.dataURL,
   });
+
+  factory Find.fromMap(Map<String, dynamic> json) {
+    return Find(dataURL: json['source'], type: FindSMEnum.spotify);
+  }
 }
 
 class UserFinds {

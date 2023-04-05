@@ -21,6 +21,7 @@ class UserProvider extends ChangeNotifier {
         notifyListeners();
       } else {
         final userDoc = await _usersCollection.doc(firebaseUser.uid).get();
+
         if (userDoc.exists) {
           _currentUser =
               FindUser.fromJson(userDoc.data() as Map<String, dynamic>);
