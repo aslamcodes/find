@@ -1,6 +1,6 @@
+import 'package:find/authentication/login_page.dart';
 import 'package:find/model/user_model.dart';
-import 'package:find/pages/auth/login.dart';
-import 'package:find/pages/home.dart';
+import 'package:find/feed/home.dart';
 import 'package:find/pages/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  print("Print Working");
   await Firebase.initializeApp();
 
   runApp(MultiProvider(providers: [

@@ -1,4 +1,4 @@
-import 'package:find/classes/user_finds.dart';
+import 'package:find/interfaces/user_finds.dart';
 import 'package:find/widgets/find_circle.dart';
 import 'package:flutter/material.dart';
 

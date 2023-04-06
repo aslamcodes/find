@@ -1,8 +1,8 @@
-import 'package:find/classes/user_finds.dart';
+import 'package:find/authentication/auth_controller.dart';
+import 'package:find/feed/feed_controller.dart';
+import 'package:find/interfaces/user_finds.dart';
 import 'package:find/model/user_model.dart';
-import 'package:find/utils/user_utils.dart';
 import 'package:find/widgets/common/new_find_fab.dart';
-import 'package:find/widgets/find_circle.dart';
 import 'package:find/widgets/find_group.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,14 +18,14 @@ class HomePageWidget extends StatefulWidget {
 
 class _HomePageWidgetState extends State<HomePageWidget> {
   late Future<List<UserFinds>> futureUserFinds;
-
+  final FeedsController _feedsController = FeedsController();
+  final AuthController _authController = AuthController();
   @override
   void initState() {
     super.initState();
-
-    String? uid = Provider.of<User?>(context, listen: false)?.uid;
-    print(uid);
-    futureUserFinds = getUserFindsFromFirestore(uid);
+    // Todo: Separate Firebase
+    futureUserFinds = _feedsController
+        .getFeedsForUser(FirebaseAuth.instance.currentUser!.uid);
   }
 
   @override
@@ -36,7 +36,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           centerTitle: true,
           leading: GestureDetector(
             onTap: () {
-              FirebaseAuth.instance.signOut();
+              _authController.logout();
             },
             child: Container(
               // margin: const EdgeInsets.all(17),
@@ -54,10 +54,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           actions: [
             GestureDetector(
               onTap: () async {
-                final uid = context.read<User?>()?.uid;
-                if (uid != null) {
-                  getUserFindsFromFirestore(uid);
-                }
+                print(await futureUserFinds);
               },
               child: Container(
                 decoration: const BoxDecoration(
@@ -97,7 +94,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 ),
               );
             } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
+              return const Text('Such');
             }
 
             // By default, show a loading spinner.

@@ -1,5 +1,5 @@
-import 'package:find/pages/auth/login.dart';
-import 'package:find/pages/auth/register.dart';
+import 'package:find/authentication/login_page.dart';
+import 'package:find/authentication/register_page.dart';
 import 'package:flutter/material.dart';
 
 Map<String, Widget Function(BuildContext)> routeMap = {

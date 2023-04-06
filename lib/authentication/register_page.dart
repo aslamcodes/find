@@ -1,8 +1,5 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:find/authentication/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -17,7 +14,7 @@ class _RegisterPageState extends State<Register> {
   final usernameController = TextEditingController(),
       passwordController = TextEditingController(),
       emailController = TextEditingController();
-
+  final AuthController _authController = AuthController();
   File? _imageFile;
 
   @override
@@ -38,49 +35,9 @@ class _RegisterPageState extends State<Register> {
     }
   }
 
-  Future<String?> _uploadProfilePicture(String uid) async {
-    if (_imageFile == null) return null;
-    final Reference storageRef =
-        FirebaseStorage.instance.ref().child('users/$uid/profile.jpg');
-    final UploadTask uploadTask = storageRef.putFile(_imageFile!);
-    await uploadTask.whenComplete(() => null);
-    final String downloadUrl = await storageRef.getDownloadURL();
-    return downloadUrl;
-  }
-
   void registerHandler() async {
-    try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      if (credential.user?.uid != null) {
-        final String? profileUrl = await _uploadProfilePicture(credential.user!.uid);
-
-        await FirebaseFirestore.instance
-            .collection("users")
-            .doc(credential.user!.uid)
-            .set({
-          "username": usernameController.text,
-          "email": emailController.text,
-          'profile_picture': profileUrl
-        });
-      }
-
-      if (context.mounted) {
-        Navigator.pushNamed(context, '/');
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
-    }
+    await _authController.register(
+        usernameController.text, passwordController.text, _imageFile);
   }
 
   @override

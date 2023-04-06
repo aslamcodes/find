@@ -1,6 +1,4 @@
-import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:find/authentication/auth_controller.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,21 +9,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  int counter = 0;
+  final AuthController _authController = AuthController();
   late TextEditingController usernameController, passwordController;
-
-  Future<void> loginHandler(BuildContext context) async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: usernameController.text, password: passwordController.text);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      }
-    }
-  }
 
   @override
   void initState() {
@@ -48,7 +33,8 @@ class LoginPageState extends State<LoginPage> {
       ),
       TextButton(
           onPressed: () {
-            loginHandler(context);
+            _authController.login(
+                usernameController.text, passwordController.text);
           },
           child: const Text("Login")),
       TextButton(
