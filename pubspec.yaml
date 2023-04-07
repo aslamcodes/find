@@ -45,6 +45,7 @@ dependencies:
   firebase_storage: ^11.0.16
   font_awesome_flutter: ^10.4.0
   receive_sharing_intent: ^1.4.5
+  flutter_native_splash: ^2.2.19
 
 dev_dependencies:
   flutter_test:
@@ -100,3 +101,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_native_splash:
+  color: "#00809F"
