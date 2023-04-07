@@ -1,8 +1,8 @@
 import 'package:find/authentication/auth_repository.dart';
 
 class AuthService {
-  final AuthRepository _authRepository = AuthRepository();
-
+  const AuthService();
+  final AuthRepository _authRepository = const AuthRepository();
   Future<void> login(Map<String, dynamic> userValues) async {
     return await _authRepository.login(userValues);
   }

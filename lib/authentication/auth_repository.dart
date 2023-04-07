@@ -5,16 +5,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class AuthRepository {
+  const AuthRepository();
   Future<void> login(Map<String, dynamic> userValues) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: userValues['username'], password: userValues['password']);
+        email: userValues['username'],
+        password: userValues['password'],
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        throw Exception('No user found for that email.');
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        throw Exception('Wrong password provided for that user.');
+      } else {
+        throw Exception('An error occurred while logging in.');
       }
+    } catch (e) {
+      throw Exception('An error occurred while logging in.');
     }
   }
 
@@ -53,15 +60,19 @@ class AuthRepository {
           "email": userValues['password'],
           'profile_picture': profileUrl
         });
+      } else {
+        throw Exception("User could not be created");
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        throw Exception('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        throw Exception('The account already exists for that email.');
+      } else {
+        throw Exception('Something went wrong');
       }
     } catch (e) {
-      print(e);
+      throw Exception('Error: $e');
     }
   }
 }

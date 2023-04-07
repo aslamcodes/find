@@ -5,15 +5,21 @@ import 'package:flutter/material.dart';
 class FindGroupWidget extends StatelessWidget {
   final List<Find> finds;
   final String username;
+  final String? profile_image;
 
   const FindGroupWidget(
-      {super.key, required this.finds, required this.username});
+      {super.key,
+      required this.finds,
+      required this.username,
+      this.profile_image});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8.0),
-      color: const Color.fromRGBO(240, 240, 240, 1),
+      decoration: BoxDecoration(
+          color: const Color.fromRGBO(240, 240, 240, 1),
+          borderRadius: BorderRadius.circular(10)),
       height: 130,
       child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -24,19 +30,14 @@ class FindGroupWidget extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const CircleAvatar(
-                      backgroundColor: Colors.blue,
-                    ),
+                    CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        foregroundImage: NetworkImage(profile_image!)),
                     const SizedBox(width: 10),
                     Text("$username's finds"),
                   ],
                 ),
-                Row(
-                  children: const [
-                    Icon(Icons.favorite_outline_rounded),
-                    Icon(Icons.more_vert_rounded)
-                  ],
-                )
+                const Icon(Icons.favorite_outline_rounded)
               ],
             ),
             const Divider(

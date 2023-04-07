@@ -6,6 +6,19 @@ enum FindSMEnum {
   const FindSMEnum(this.name);
 
   final String name;
+
+  static FindSMEnum urlToIcon(String url) {
+    if (url.contains('spotify')) {
+      return FindSMEnum.spotify;
+    } else if (url.contains('youtube')) {
+      return FindSMEnum.youtube;
+    } else if (url.contains('facebook')) {
+      return FindSMEnum.facebook;
+    } else {
+      //Todo: Fix this Dump invalid case
+      return FindSMEnum.facebook;
+    }
+  }
 }
 
 class Find {
@@ -18,12 +31,22 @@ class Find {
   });
 
   factory Find.fromMap(Map<String, dynamic> json) {
-    return Find(dataURL: json['source'], type: FindSMEnum.spotify);
+    return Find(
+        dataURL: json['source'], type: FindSMEnum.urlToIcon(json['source']));
   }
 }
 
 class UserFinds {
   final List<Find> finds;
   final String user;
-  const UserFinds({required this.finds, required this.user});
+  final String userProfile;
+  const UserFinds(
+      {required this.finds, required this.user, required this.userProfile});
+
+  factory UserFinds.fromMap(Map<String, dynamic> json) {
+    return UserFinds(
+        finds: json['finds'],
+        user: json['username'],
+        userProfile: json['profile_image']);
+  }
 }

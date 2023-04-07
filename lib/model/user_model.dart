@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
-  late final FirebaseFirestore _firestore;
-  late final CollectionReference _usersCollection;
+  late FirebaseFirestore _firestore;
+  late CollectionReference _usersCollection;
 
   FindUser? _currentUser;
 

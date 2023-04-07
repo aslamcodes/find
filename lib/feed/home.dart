@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:find/authentication/auth_controller.dart';
 import 'package:find/feed/feed_controller.dart';
 import 'package:find/interfaces/user_finds.dart';
@@ -20,10 +21,22 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   late Future<List<UserFinds>> futureUserFinds;
   final FeedsController _feedsController = FeedsController();
   final AuthController _authController = AuthController();
+  late TextEditingController _searchController;
+
+  Timer? _debounce;
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 600), () {
+      // print('Performing search for: ${_searchController.text}');
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     // Todo: Separate Firebase
+    _searchController = TextEditingController();
     futureUserFinds = _feedsController
         .getFeedsForUser(FirebaseAuth.instance.currentUser!.uid);
   }
@@ -35,26 +48,23 @@ class _HomePageWidgetState extends State<HomePageWidget> {
         appBar: AppBar(
           centerTitle: true,
           leading: GestureDetector(
-            onTap: () {
-              _authController.logout();
-            },
+            onTap: () => Navigator.pushNamed(context, '/profile'),
             child: Container(
-              // margin: const EdgeInsets.all(17),
               padding: const EdgeInsets.all(2),
-              child: CircleAvatar(
-                backgroundColor: Colors.blue,
-                foregroundImage: NetworkImage(context
-                        .read<UserProvider>()
-                        .currentUser
-                        ?.profileImage ??
-                    "https://static.wikia.nocookie.net/despicableme/images/a/ac/BobYay.png/revision/latest?cb=20220129132453"),
+              child: Consumer<UserProvider>(
+                builder: (context, value, child) => CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  foregroundImage: NetworkImage(value
+                          .currentUser?.profileImage ??
+                      "https://static.wikia.nocookie.net/despicableme/images/a/ac/BobYay.png/revision/latest?cb=20220129132453"),
+                ),
               ),
             ),
           ),
           actions: [
             GestureDetector(
-              onTap: () async {
-                print(await futureUserFinds);
+              onTap: () {
+                Navigator.pushNamed(context, '/search');
               },
               child: Container(
                 decoration: const BoxDecoration(
@@ -65,14 +75,16 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
             )
           ],
-          title: Text(
-            "finds",
-            style: GoogleFonts.lobster(
-                textStyle: const TextStyle(
-              fontSize: 35,
-              color: Color.fromRGBO(0, 129, 159, 1),
-            )),
-          ),
+          title: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              child: Text(
+                "finds",
+                style: GoogleFonts.lobster(
+                    textStyle: const TextStyle(
+                  fontSize: 35,
+                  color: Color.fromRGBO(0, 129, 159, 1),
+                )),
+              )),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
@@ -81,12 +93,13 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.fromLTRB(8.0, 20, 8, 8),
                 child: ListView.separated(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) => FindGroupWidget(
                     finds: snapshot.data![index].finds,
                     username: snapshot.data![index].user,
+                    profile_image: snapshot.data![index].userProfile,
                   ),
                   separatorBuilder: (context, index) => const SizedBox(
                     height: 10,
@@ -98,7 +111,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             }
 
             // By default, show a loading spinner.
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           },
         ),
         floatingActionButton: const NewFindFAB(),
